@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.31112.23
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelloTriangle", "HelloTriangle\HelloTriangle.csproj", "{FF5AF5A7-7556-4450-A348-CE050E037690}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelloTriangleMsaa", "HelloTriangleMsaa\HelloTriangleMsaa.csproj", "{B56BFA6B-D330-48FB-9673-33494B5CFCD2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM = Debug|ARM
@@ -41,6 +43,30 @@ Global
 		{FF5AF5A7-7556-4450-A348-CE050E037690}.Release|x86.ActiveCfg = Release|x86
 		{FF5AF5A7-7556-4450-A348-CE050E037690}.Release|x86.Build.0 = Release|x86
 		{FF5AF5A7-7556-4450-A348-CE050E037690}.Release|x86.Deploy.0 = Release|x86
+		{B56BFA6B-D330-48FB-9673-33494B5CFCD2}.Debug|ARM.ActiveCfg = Debug|ARM
+		{B56BFA6B-D330-48FB-9673-33494B5CFCD2}.Debug|ARM.Build.0 = Debug|ARM
+		{B56BFA6B-D330-48FB-9673-33494B5CFCD2}.Debug|ARM.Deploy.0 = Debug|ARM
+		{B56BFA6B-D330-48FB-9673-33494B5CFCD2}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{B56BFA6B-D330-48FB-9673-33494B5CFCD2}.Debug|ARM64.Build.0 = Debug|ARM64
+		{B56BFA6B-D330-48FB-9673-33494B5CFCD2}.Debug|ARM64.Deploy.0 = Debug|ARM64
+		{B56BFA6B-D330-48FB-9673-33494B5CFCD2}.Debug|x64.ActiveCfg = Debug|x64
+		{B56BFA6B-D330-48FB-9673-33494B5CFCD2}.Debug|x64.Build.0 = Debug|x64
+		{B56BFA6B-D330-48FB-9673-33494B5CFCD2}.Debug|x64.Deploy.0 = Debug|x64
+		{B56BFA6B-D330-48FB-9673-33494B5CFCD2}.Debug|x86.ActiveCfg = Debug|x86
+		{B56BFA6B-D330-48FB-9673-33494B5CFCD2}.Debug|x86.Build.0 = Debug|x86
+		{B56BFA6B-D330-48FB-9673-33494B5CFCD2}.Debug|x86.Deploy.0 = Debug|x86
+		{B56BFA6B-D330-48FB-9673-33494B5CFCD2}.Release|ARM.ActiveCfg = Release|ARM
+		{B56BFA6B-D330-48FB-9673-33494B5CFCD2}.Release|ARM.Build.0 = Release|ARM
+		{B56BFA6B-D330-48FB-9673-33494B5CFCD2}.Release|ARM.Deploy.0 = Release|ARM
+		{B56BFA6B-D330-48FB-9673-33494B5CFCD2}.Release|ARM64.ActiveCfg = Release|ARM64
+		{B56BFA6B-D330-48FB-9673-33494B5CFCD2}.Release|ARM64.Build.0 = Release|ARM64
+		{B56BFA6B-D330-48FB-9673-33494B5CFCD2}.Release|ARM64.Deploy.0 = Release|ARM64
+		{B56BFA6B-D330-48FB-9673-33494B5CFCD2}.Release|x64.ActiveCfg = Release|x64
+		{B56BFA6B-D330-48FB-9673-33494B5CFCD2}.Release|x64.Build.0 = Release|x64
+		{B56BFA6B-D330-48FB-9673-33494B5CFCD2}.Release|x64.Deploy.0 = Release|x64
+		{B56BFA6B-D330-48FB-9673-33494B5CFCD2}.Release|x86.ActiveCfg = Release|x86
+		{B56BFA6B-D330-48FB-9673-33494B5CFCD2}.Release|x86.Build.0 = Release|x86
+		{B56BFA6B-D330-48FB-9673-33494B5CFCD2}.Release|x86.Deploy.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

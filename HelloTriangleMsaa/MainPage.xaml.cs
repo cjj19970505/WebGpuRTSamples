@@ -16,21 +16,21 @@ using WebGpuRT;
 using System.Threading.Tasks;
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
-namespace HelloTriangle
+namespace HelloTriangleMsaa
 {
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        
-        Gpu Gpu { get; }
+        public Gpu Gpu { get; }
         GpuDevice Device { get; set; }
         GpuRenderPipeline Pipeline { get; set; }
         GpuSwapChainDescriptor SwapChainDescriptor { get; set; }
         GpuSwapChain SwapChain { get; set; }
+        GpuTextureView Attachment { get; set; }
         GpuTextureFormat SwapChainFormat { get { return GpuTextureFormat.BGRA8UNorm; } }
-
+        UInt32 SampleCount { get { return 4; } }
         public MainPage()
         {
             Gpu = new Gpu();
@@ -44,12 +44,14 @@ namespace HelloTriangle
             await Init();
             GpuFence fence = Device.DefaultQueue.CreateFence();
             UInt64 currentFenceValue = 0;
-            while(true)
+            while (true)
             {
-                if(SwapChain == null)
+                if (SwapChain == null)
                 {
                     SwapChainDescriptor = new GpuSwapChainDescriptor(SwapChainFormat, (uint)GpuView.Width, (uint)GpuView.Height);
                     SwapChain = Device.ConfigureSwapChainForSwapChainPanel(SwapChainDescriptor, GpuView);
+                    var texture = Device.CreateTexture(new GpuTextureDescriptor(new GpuExtend3DDict { Width = SwapChainDescriptor.Width, Height = SwapChainDescriptor.Height, Depth = 1 }, SwapChainFormat, GpuTextureUsageFlags.OutputAttachment) { SampleCount = SampleCount });
+                    Attachment = texture.CreateView();
                 }
                 DrawFrame();
                 var fenceValueWaitFor = ++currentFenceValue;
@@ -70,35 +72,44 @@ namespace HelloTriangle
         {
             var adapter = await Gpu.RequestAdapterAsync();
             Device = await adapter.RequestDeviceAsync();
-            
+
             string shaderCode;
-            using(var shaderFileStream = typeof(MainPage).Assembly.GetManifestResourceStream("HelloTriangle.shader.hlsl"))
-            using(var shaderStreamReader = new StreamReader(shaderFileStream))
+            using (var shaderFileStream = typeof(MainPage).Assembly.GetManifestResourceStream("HelloTriangleMsaa.shader.hlsl"))
+            using (var shaderStreamReader = new StreamReader(shaderFileStream))
             {
                 shaderCode = shaderStreamReader.ReadToEnd();
             }
             Pipeline = Device.CreateRenderPipeline(new GpuRenderPipelineDescriptor(
                 new GpuVertexState(Device.CreateShaderModule(new GpuShaderModuleDescriptor(GpuShaderSourceType.Hlsl, shaderCode)), "VSMain"))
             {
-                Fragment = new GpuFragmentState(Device.CreateShaderModule(new GpuShaderModuleDescriptor(GpuShaderSourceType.Hlsl, shaderCode)), "PSMain",new GpuColorTargetState[] { new GpuColorTargetState() { Format = SwapChainFormat, Blend = null, WriteMask = GpuColorWriteFlags.All} } ),
+                Fragment = new GpuFragmentState(Device.CreateShaderModule(new GpuShaderModuleDescriptor(GpuShaderSourceType.Hlsl, shaderCode)), "PSMain", new GpuColorTargetState[] { new GpuColorTargetState() { Format = SwapChainFormat, Blend = null, WriteMask = GpuColorWriteFlags.All } }),
                 Primitive = new GpuPrimitiveState()
                 {
                     Topology = GpuPrimitiveTopology.TriangleList,
                     FrontFace = GpuFrontFace.Ccw,
                     CullMode = GpuCullMode.None,
                     StripIndexFormat = null
+                },
+                Multisample = new GpuMultisampleState()
+                {
+                     Count = SampleCount,
+                     AlphaToCoverageEnabled = false,
+                     Mask = 0xFFFFFFFF
                 }
             });
+            
 
 
         }
         void DrawFrame()
         {
             var encoder = Device.CreateCommandEncoder();
-            var textureView = SwapChain.GetCurrentTexture().CreateView();
-            var renderpassDescriptor = new GpuRenderPassDescriptor(new GpuRenderPassColorAttachment[] 
+            var renderpassDescriptor = new GpuRenderPassDescriptor(new GpuRenderPassColorAttachment[]
             {
-                new GpuRenderPassColorAttachment(textureView, new GpuColorDict{R = 0, G = 0, B = 0, A = 1 })
+                new GpuRenderPassColorAttachment(Attachment, new GpuColorDict{R = 0, G = 0, B = 0, A = 1 })
+                {
+                    ResolveTarget = SwapChain.GetCurrentTexture().CreateView()
+                }
             });
             var passEncoder = encoder.BeginRenderPass(renderpassDescriptor);
             passEncoder.SetViewport(0, 0, SwapChainDescriptor.Width, SwapChainDescriptor.Height, 0, 1);
@@ -109,7 +120,5 @@ namespace HelloTriangle
             Device.DefaultQueue.Sumit(new GpuCommandBuffer[] { encoder.Finish() });
             SwapChain.Present();
         }
-
-        
     }
 }
