@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace RotatingCube
+namespace Meshes
 {
-    class Cube
+    public class Cube
     {
         public const UInt32 CubeVertexSize = 4 * 10; // Byte size of one cube vertex.
         public const UInt32 CubePositionOffset = 0;
