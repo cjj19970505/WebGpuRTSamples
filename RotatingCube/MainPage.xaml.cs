@@ -98,7 +98,7 @@ namespace RotatingCube
                 CullMode = GpuCullMode.Back, 
                 StripIndexFormat = null 
             };
-            var depthState = new GpuDepthStencilState(GpuTextureFormat.Depth32Float)
+            var depthState = new GpuDepthStencilState(GpuTextureFormat.Depth24PlusStencil8)
             {
                 DepthWriteEnabled = true,
                 DepthCompare = GpuCompareFunction.Less,
@@ -218,7 +218,7 @@ namespace RotatingCube
                 {
                     SwapChainDescriptor = new GpuSwapChainDescriptor(GpuTextureFormat.BGRA8UNorm, (uint)GpuView.Width, (uint)GpuView.Height);
                     SwapChain = Device.ConfigureSwapChainForSwapChainPanel(SwapChainDescriptor, GpuView);
-                    DepthTexture = Device.CreateTexture(new GpuTextureDescriptor(new GpuExtend3DDict { Width = SwapChainDescriptor.Width, Height = SwapChainDescriptor.Height, Depth = 1 }, GpuTextureFormat.Depth32Float, GpuTextureUsageFlags.OutputAttachment));
+                    DepthTexture = Device.CreateTexture(new GpuTextureDescriptor(new GpuExtend3DDict { Width = SwapChainDescriptor.Width, Height = SwapChainDescriptor.Height, Depth = 1 }, GpuTextureFormat.Depth24PlusStencil8, GpuTextureUsageFlags.OutputAttachment));
                 }
                 DrawFrame();
                 var fenceValueWaitFor = ++currentFenceValue;
