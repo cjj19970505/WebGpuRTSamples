@@ -34,6 +34,7 @@ namespace HelloTriangle
         public MainPage()
         {
             Gpu = new Gpu();
+            Gpu.EnableD3D12DebugLayer();
             this.InitializeComponent();
             GpuView.Width = Window.Current.Bounds.Width;
             GpuView.Height = Window.Current.Bounds.Height;
