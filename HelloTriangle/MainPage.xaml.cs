@@ -102,8 +102,6 @@ namespace HelloTriangle
                 new GpuRenderPassColorAttachment(textureView, new GpuColorDict{R = 0, G = 0, B = 0, A = 1 })
             });
             var passEncoder = encoder.BeginRenderPass(renderpassDescriptor);
-            passEncoder.SetViewport(0, 0, SwapChainDescriptor.Width, SwapChainDescriptor.Height, 0, 1);
-            passEncoder.SetScissorRect(0, 0, SwapChainDescriptor.Width, SwapChainDescriptor.Height);
             passEncoder.SetPipeline(Pipeline);
             passEncoder.Draw(3, 1, 0, 0);
             passEncoder.EndPass();

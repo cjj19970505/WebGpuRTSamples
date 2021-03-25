@@ -13,67 +13,36 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using WebGpuRT;
-using Meshes;
 using System.Threading.Tasks;
+using Meshes;
+using Windows.Graphics.Imaging;
 using System.Numerics;
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
-namespace TwoCubes
+namespace TexturedCube
 {
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        const UInt32 UniformBufferSize = 4 * 16; // Matrix4x4
         readonly DateTime StartDateTime = DateTime.Now;
-
-        static readonly UInt32 MatrixSize = 4 * 16;
-        static readonly UInt32 Offset = 256;
-        static readonly UInt32 UniformBufferSize = Offset + MatrixSize;
         GpuDevice Device { get; set; }
-        GpuBuffer VerticesBuffer { get; set; }
-        GpuRenderPipeline Pipeline { get; set; }
-        GpuBuffer UniformBuffer { get; set; }
-        Windows.Storage.Streams.IBuffer UniformCpuBuffer { get; set; }
-        GpuBindGroup UniformBindGroup1 { get; set; }
-        GpuBindGroup UniformBindGroup2 { get; set; }
-
         GpuSwapChainDescriptor SwapChainDescriptor { get; set; }
         GpuSwapChain SwapChain { set; get; }
         GpuTexture DepthTexture { set; get; }
+        GpuBuffer UniformBuffer { get; set; }
+        Windows.Storage.Streams.IBuffer UniformCpuBuffer { get; set; }
+        GpuRenderPipeline Pipeline { get; set; }
+        GpuBindGroup UniformBindGroup { get; set; }
+        GpuBuffer VerticesBuffer { get; set; }
 
         public MainPage()
         {
             this.InitializeComponent();
-            GpuView.Width = Window.Current.Bounds.Height;
-            GpuView.Height = Window.Current.Bounds.Width;
-        }
-
-        void WriteMatrixToBuffer(Windows.Storage.Streams.IBuffer buffer ,Matrix4x4 mat)
-        {
-            using (var stream = buffer.AsStream())
-            using (var writer = new BinaryWriter(stream))
-            {
-                writer.Write(mat.M11);
-                writer.Write(mat.M12);
-                writer.Write(mat.M13);
-                writer.Write(mat.M14);
-
-                writer.Write(mat.M21);
-                writer.Write(mat.M22);
-                writer.Write(mat.M23);
-                writer.Write(mat.M24);
-
-                writer.Write(mat.M31);
-                writer.Write(mat.M32);
-                writer.Write(mat.M33);
-                writer.Write(mat.M34);
-
-                writer.Write(mat.M41);
-                writer.Write(mat.M42);
-                writer.Write(mat.M43);
-                writer.Write(mat.M44);
-            }
+            GpuView.Width = Window.Current.Bounds.Width;
+            GpuView.Height = Window.Current.Bounds.Height;
         }
 
         async Task Init()
@@ -98,7 +67,7 @@ namespace TwoCubes
             VerticesBuffer.Unmap();
 
             string shaderCode;
-            using (var shaderFileStream = typeof(MainPage).Assembly.GetManifestResourceStream("TwoCubes.shader.hlsl"))
+            using (var shaderFileStream = typeof(MainPage).Assembly.GetManifestResourceStream("TexturedCube.shader.hlsl"))
             using (var shaderStreamReader = new StreamReader(shaderFileStream))
             {
                 shaderCode = shaderStreamReader.ReadToEnd();
@@ -118,8 +87,8 @@ namespace TwoCubes
                     new GpuVertexAttribute()
                     {
                         ShaderLocation = 1,
-                        Format = GpuVertexFormat.Float4,
-                        Offset = Cube.CubeColorOffset
+                        Format = GpuVertexFormat.Float2,
+                        Offset = Cube.CubeUVOffset
                     }
 
                 })  }
@@ -147,7 +116,27 @@ namespace TwoCubes
                     {
                         Type = GpuBufferBindingType.Uniform,
                         HasDynamicOffset = false,
-                        MinBindingSize = MatrixSize
+                        MinBindingSize = UniformBufferSize
+                    }
+                },
+                new GpuBindGroupLayoutEntry()
+                {
+                    Binding = 1,
+                    Visibility = GpuShaderStageFlags.Fragment,
+                    Sampler = new GpuSamplerBindingLayout()
+                    {
+                        Type = GpuSamplerBindingType.Filtering
+                    }
+                },
+                new GpuBindGroupLayoutEntry()
+                {
+                    Binding = 2,
+                    Visibility = GpuShaderStageFlags.Fragment,
+                    Texture = new GpuTextureBindingLayout()
+                    {
+                        SampleType = GpuTextureSampleType.Float,
+                        ViewDimension = GpuTextureViewDimension._2D,
+                        Multisampled = false
                     }
                 }
 
@@ -166,39 +155,32 @@ namespace TwoCubes
                 DepthStencilState = depthState,
                 Layout = pipelineLayout
             });
-
             UniformBuffer = Device.CreateBuffer(new GpuBufferDescriptor(UniformBufferSize, GpuBufferUsageFlags.Uniform | GpuBufferUsageFlags.CopyDst));
-            UniformCpuBuffer = new Windows.Storage.Streams.Buffer(MatrixSize);
+            UniformCpuBuffer = new Windows.Storage.Streams.Buffer(4 * 4 * sizeof(float));
             UniformCpuBuffer.Length = UniformCpuBuffer.Capacity;
-            UniformBindGroup1 = Device.CreateBindGroup(new GpuBindGroupDescriptor(uniformBindGroupLayout, new GpuBindGroupEntry[]
+            
+            var imgDecoder = await BitmapDecoder.CreateAsync(typeof(MainPage).Assembly.GetManifestResourceStream("TexturedCube.Di_3d.png").AsRandomAccessStream());
+            var imageBitmap = await imgDecoder.GetSoftwareBitmapAsync();
+            var cubeTexture = Device.CreateTexture(new GpuTextureDescriptor(new GpuExtend3DDict { Width = (uint)imageBitmap.PixelWidth, Height = (uint)imageBitmap.PixelHeight, Depth = 1 }, GpuTextureFormat.RGBA8UNorm, GpuTextureUsageFlags.Sampled | GpuTextureUsageFlags.CopyDst));
+            Device.DefaultQueue.CopyImageBitmapToTexture(new GpuImageCopyImageBitmap(imageBitmap), new GpuImageCopyTexture(cubeTexture), new GpuExtend3DDict { Width = (uint)imageBitmap.PixelWidth, Height = (uint)imageBitmap.PixelHeight, Depth = 1 });
+            var sampler = Device.CreateSampler(new GpuSamplerDescriptor()
             {
-                new GpuBindGroupEntry(0, new GpuBufferBinding(UniformBuffer, MatrixSize){Offset = 0 })
-            }));
-            UniformBindGroup2 = Device.CreateBindGroup(new GpuBindGroupDescriptor(uniformBindGroupLayout, new GpuBindGroupEntry[]
+                MagFilter = GpuFilterMode.Linear,
+                MinFilter = GpuFilterMode.Linear
+            });
+            UniformBindGroup = Device.CreateBindGroup(new GpuBindGroupDescriptor(uniformBindGroupLayout, new GpuBindGroupEntry[]
             {
-                new GpuBindGroupEntry(0, new GpuBufferBinding(UniformBuffer, MatrixSize){Offset = Offset })
+                new GpuBindGroupEntry(0, new GpuBufferBinding(UniformBuffer, UniformBufferSize)),
+                new GpuBindGroupEntry(1, sampler),
+                new GpuBindGroupEntry(2, cubeTexture.CreateView())
             }));
-        }
-
-        (Matrix4x4, Matrix4x4) GetTransformationMatrixs()
-        {
-            var now = (float)(DateTime.Now - StartDateTime).TotalMilliseconds;
-            var viewMatrix = Matrix4x4.CreateTranslation(0, 0, -7);
-            var modelMatrix1 = Matrix4x4.CreateFromAxisAngle(new Vector3(MathF.Sin(now / 1000.0f), MathF.Cos(now / 1000.0f), 0), 1) * Matrix4x4.CreateTranslation(-2, 0, 0);
-            var modelMatrix2 = Matrix4x4.CreateFromAxisAngle(new Vector3(MathF.Sin(now / 1000.0f), MathF.Cos(now / 1000.0f), 0), 1) * Matrix4x4.CreateTranslation(2, 0, 0);
-            var persepctive = Matrix4x4.CreatePerspectiveFieldOfView(2 * MathF.PI / 5, (float)SwapChainDescriptor.Width / (float)SwapChainDescriptor.Height, 1, 100);
-            var mvp1 = modelMatrix1 * viewMatrix * persepctive;
-            var mvp2 = modelMatrix2 * viewMatrix * persepctive;
-            return (mvp1, mvp2);
         }
 
         void DrawFrame()
         {
-            (Matrix4x4 modelViewProjectionMatrix1, Matrix4x4 modelViewProjectionMatrix2) = GetTransformationMatrixs();
-            WriteMatrixToBuffer(UniformCpuBuffer, modelViewProjectionMatrix1);
+
+            WriteMatrixToBuffer(UniformCpuBuffer, GetTransformationMatrix());
             Device.DefaultQueue.WriteBuffer(UniformBuffer, 0, UniformCpuBuffer);
-            WriteMatrixToBuffer(UniformCpuBuffer, modelViewProjectionMatrix2);
-            Device.DefaultQueue.WriteBuffer(UniformBuffer, Offset, UniformCpuBuffer);
 
             GpuRenderPassDescriptor renderPassDescriptor = new GpuRenderPassDescriptor(new GpuRenderPassColorAttachment[] { new GpuRenderPassColorAttachment(SwapChain.GetCurrentTexture().CreateView(), new GpuColorDict { R = 0.5f, G = 0.5f, B = 0.5f, A = 1.0f }) })
             {
@@ -207,14 +189,50 @@ namespace TwoCubes
             var commandEncoder = Device.CreateCommandEncoder();
             var passEncoder = commandEncoder.BeginRenderPass(renderPassDescriptor);
             passEncoder.SetPipeline(Pipeline);
+            passEncoder.SetBindGroup(0, UniformBindGroup);
             passEncoder.SetVertexBuffer(0, VerticesBuffer, 0, VerticesBuffer.Size);
-            passEncoder.SetBindGroup(0, UniformBindGroup1);
-            passEncoder.Draw(36, 1, 0, 0);
-            passEncoder.SetBindGroup(1, UniformBindGroup2);
             passEncoder.Draw(36, 1, 0, 0);
             passEncoder.EndPass();
             Device.DefaultQueue.Sumit(new GpuCommandBuffer[] { commandEncoder.Finish() });
             SwapChain.Present();
+        }
+
+        Matrix4x4 GetTransformationMatrix()
+        {
+            var now = (DateTime.Now - StartDateTime).TotalMilliseconds;
+            var model = Matrix4x4.CreateFromAxisAngle(new Vector3((float)Math.Sin(now / 1000.0f), (float)Math.Cos(now / 1000.0f), 0), 1);
+            var view = Matrix4x4.CreateTranslation(new Vector3(0, 0, -4));
+            var persepctive = Matrix4x4.CreatePerspectiveFieldOfView(2 * MathF.PI / 5, (float)SwapChainDescriptor.Width / (float)SwapChainDescriptor.Height, 1, 100);
+            var modelViewProjectionMatrix = model * view * persepctive;
+
+            return modelViewProjectionMatrix;
+        }
+
+        void WriteMatrixToBuffer(Windows.Storage.Streams.IBuffer buffer, Matrix4x4 mat)
+        {
+            using (var stream = buffer.AsStream())
+            using (var writer = new BinaryWriter(stream))
+            {
+                writer.Write(mat.M11);
+                writer.Write(mat.M12);
+                writer.Write(mat.M13);
+                writer.Write(mat.M14);
+
+                writer.Write(mat.M21);
+                writer.Write(mat.M22);
+                writer.Write(mat.M23);
+                writer.Write(mat.M24);
+
+                writer.Write(mat.M31);
+                writer.Write(mat.M32);
+                writer.Write(mat.M33);
+                writer.Write(mat.M34);
+
+                writer.Write(mat.M41);
+                writer.Write(mat.M42);
+                writer.Write(mat.M43);
+                writer.Write(mat.M44);
+            }
         }
 
         private async void Page_Loaded(object sender, RoutedEventArgs e)

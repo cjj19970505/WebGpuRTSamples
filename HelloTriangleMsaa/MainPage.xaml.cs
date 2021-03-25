@@ -113,8 +113,6 @@ namespace HelloTriangleMsaa
                 }
             });
             var passEncoder = encoder.BeginRenderPass(renderpassDescriptor);
-            passEncoder.SetViewport(0, 0, SwapChainDescriptor.Width, SwapChainDescriptor.Height, 0, 1);
-            passEncoder.SetScissorRect(0, 0, SwapChainDescriptor.Width, SwapChainDescriptor.Height);
             passEncoder.SetPipeline(Pipeline);
             passEncoder.Draw(3, 1, 0, 0);
             passEncoder.EndPass();

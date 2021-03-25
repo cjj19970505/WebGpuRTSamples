@@ -158,8 +158,6 @@ namespace RotatingCube
             };
             var commandEncoder = Device.CreateCommandEncoder();
             var passEncoder = commandEncoder.BeginRenderPass(renderPassDescriptor);
-            passEncoder.SetViewport(0, 0, SwapChainDescriptor.Width, SwapChainDescriptor.Height, 0, 1);
-            passEncoder.SetScissorRect(0, 0, SwapChainDescriptor.Width, SwapChainDescriptor.Height);
             passEncoder.SetPipeline(Pipeline);
             passEncoder.SetBindGroup(0, UniformBindGroup);
             passEncoder.SetVertexBuffer(0, VerticesBuffer, 0, VerticesBuffer.Size);
