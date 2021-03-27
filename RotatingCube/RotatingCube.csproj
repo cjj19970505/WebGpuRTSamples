@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProjectGuid>{B56BFA6B-D330-48FB-9673-33494B5CFCD2}</ProjectGuid>
+    <ProjectGuid>{D70F131E-D14B-4670-AC9B-C279B4771BC2}</ProjectGuid>
     <OutputType>AppContainerExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>HelloTriangleMsaa</RootNamespace>
-    <AssemblyName>HelloTriangleMsaa</AssemblyName>
+    <RootNamespace>RotatingCube</RootNamespace>
+    <AssemblyName>RotatingCube</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.19041.0</TargetPlatformVersion>
@@ -157,6 +157,12 @@
     <PackageReference Include="WebGpuRT">
       <Version>0.0.28-alpha</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Meshes\Meshes.csproj">
+      <Project>{ce6ac7b1-aa5a-4661-ac0b-dfc470bc1aa3}</Project>
+      <Name>Meshes</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
