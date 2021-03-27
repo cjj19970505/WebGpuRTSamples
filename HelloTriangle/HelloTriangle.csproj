@@ -155,7 +155,7 @@
       <Version>6.2.12</Version>
     </PackageReference>
     <PackageReference Include="WebGpuRT">
-      <Version>0.0.28-alpha</Version>
+      <Version>0.0.29-alpha</Version>
     </PackageReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
