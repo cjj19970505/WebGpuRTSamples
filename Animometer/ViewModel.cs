@@ -12,7 +12,7 @@ namespace Animometer
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        int _NumTriangles = 1;
+        int _NumTriangles = 2000;
         public int NumTriangles
         {
             get

@@ -70,7 +70,9 @@ namespace Animometer
         async Task Init()
         {
             var gpu = new Gpu();
+#if DEBUG
             gpu.EnableD3D12DebugLayer();
+#endif
             var adapter = await gpu.RequestAdapterAsync();
             Device = await adapter.RequestDeviceAsync();
             TimeBindGroupLayout = Device.CreateBindGroupLayout(new GpuBindGroupLayoutDescriptor(new GpuBindGroupLayoutEntry[]

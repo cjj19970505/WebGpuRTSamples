@@ -28,7 +28,7 @@
                 <RowDefinition/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
-            <Slider d:Header="NumTriangles: 100" Header="{Binding Path=NumTriangles, Converter={StaticResource ResourceKey=StringFormatConverter}, ConverterParameter='NumTriangles: {0}'}" Grid.Row="0" Value="{Binding Path=NumTriangles, Mode=TwoWay}" Minimum="1" Maximum="10000"/>
+            <Slider d:Header="NumTriangles: 100" Header="{Binding Path=NumTriangles, Converter={StaticResource ResourceKey=StringFormatConverter}, ConverterParameter='NumTriangles: {0}'}" Grid.Row="0" Value="{Binding Path=NumTriangles, Mode=TwoWay}" Minimum="1" Maximum="200000"/>
             <CheckBox Content="RenderBundles" Grid.Row="1" IsChecked="{Binding Path=RenderBundles, Mode=TwoWay}"/>
             <CheckBox Content="DynamicOffsets" Grid.Row="2" IsChecked="{Binding Path=DynamicOffsets, Mode=TwoWay}"/>
         </Grid>
