@@ -43,17 +43,34 @@ namespace Animometer
         GpuRenderPipeline Pipeline { get; set; }
         GpuRenderPipeline DynamicPipeline { get; set; }
         GpuBuffer VertexBuffer { get; set; }
+        ViewModel ViewModel { get; }
+        Configure CurrentConfigure { get; set; }
         public MainPage()
         {
             this.InitializeComponent();
+            DataContext = ViewModel = new ViewModel();
+            ViewModel.PropertyChanged += ViewModel_PropertyChanged;
             GpuView.Width = Window.Current.Bounds.Width;
             GpuView.Height = Window.Current.Bounds.Height;
+        }
+
+        private void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            switch(e.PropertyName)
+            {
+                case nameof(ViewModel.NumTriangles):
+                case nameof(ViewModel.DynamicOffsets):
+                case nameof(ViewModel.RenderBundles):
+                    CurrentConfigure = null;
+                    break;
+            }
+            
         }
 
         async Task Init()
         {
             var gpu = new Gpu();
-            //gpu.EnableD3D12DebugLayer();
+            gpu.EnableD3D12DebugLayer();
             var adapter = await gpu.RequestAdapterAsync();
             Device = await adapter.RequestDeviceAsync();
             TimeBindGroupLayout = Device.CreateBindGroupLayout(new GpuBindGroupLayoutDescriptor(new GpuBindGroupLayoutEntry[]
@@ -330,18 +347,28 @@ namespace Animometer
             await Init();
             GpuFence fence = Device.DefaultQueue.CreateFence();
             UInt64 currentFenceValue = 0;
-            Settings settings = new Settings
-            {
-                DynmicOffsets = true,
-                NumTriangles = 200000,
-                RenderBundles = true
-            };
-            Configure configure = new Configure(Device, settings, BindGroupLayout, DynamicBindGroupLayout, TimeBindGroupLayout, Pipeline, DynamicPipeline, VertexBuffer, SwapChainFormat);
+            
+            
             DateTime? previousFrameDateTime = null;
             double frameTimeAverage = 0;
             double doDrawTimeAverage = 0;
+            Configure configure;
             while (true)
             {
+                if(CurrentConfigure == null)
+                {
+                    Settings settings = new Settings
+                    {
+                        DynmicOffsets = ViewModel.DynamicOffsets,
+                        NumTriangles = (uint)ViewModel.NumTriangles,
+                        RenderBundles = ViewModel.RenderBundles
+                    };
+                    configure = CurrentConfigure = new Configure(Device, settings, BindGroupLayout, DynamicBindGroupLayout, TimeBindGroupLayout, Pipeline, DynamicPipeline, VertexBuffer, SwapChainFormat);
+                }
+                else
+                {
+                    configure = CurrentConfigure;
+                }
                 if (SwapChain == null)
                 {
                     SwapChainDescriptor = new GpuSwapChainDescriptor(SwapChainFormat, (uint)GpuView.Width, (uint)GpuView.Height);
@@ -361,9 +388,8 @@ namespace Animometer
                 var w = 0.2;
                 frameTimeAverage = (1 - w) * frameTimeAverage + w * frameTime.TotalMilliseconds;
                 doDrawTimeAverage = (1 - w) * doDrawTimeAverage + w * doDrawTimeSpan.TotalMilliseconds;
-
-                System.Diagnostics.Debug.WriteLine($"FrameTime:{frameTimeAverage} CpuTime:{doDrawTimeAverage}");
-
+                ViewModel.FrameTimeAverage = (float)frameTimeAverage;
+                ViewModel.CpuTimeAverage = (float)doDrawTimeAverage;
                 SwapChain.Present();
                 var fenceValueWaitFor = ++currentFenceValue;
                 Device.DefaultQueue.Signal(fence, fenceValueWaitFor);
@@ -373,7 +399,10 @@ namespace Animometer
 
         private void Page_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-
+            SwapChainDescriptor = null;
+            SwapChain = null;
+            GpuView.Width = Window.Current.Bounds.Width;
+            GpuView.Height = Window.Current.Bounds.Height;
         }
     }
 }
