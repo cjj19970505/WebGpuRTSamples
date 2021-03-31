@@ -40,6 +40,7 @@ VertexOut VSMain(float4 position : WGPULOCATION0, float4 color:WGPULOCATION1)
 	ypos = yrot + offsetY;
 	vout.color = float4(fade, 1.0 - fade, 0.0, 1.0) + color;
 	vout.position = float4(xpos, ypos, 0, 1);
+	//vout.position = float4(position.xy * time, 0, 1);
 	return vout;
 }
 

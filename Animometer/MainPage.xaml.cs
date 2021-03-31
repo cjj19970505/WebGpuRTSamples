@@ -53,7 +53,7 @@ namespace Animometer
         async Task Init()
         {
             var gpu = new Gpu();
-            gpu.EnableD3D12DebugLayer();
+            //gpu.EnableD3D12DebugLayer();
             var adapter = await gpu.RequestAdapterAsync();
             Device = await adapter.RequestDeviceAsync();
             TimeBindGroupLayout = Device.CreateBindGroupLayout(new GpuBindGroupLayoutDescriptor(new GpuBindGroupLayoutEntry[]
@@ -185,6 +185,7 @@ namespace Animometer
             GpuTextureFormat SwapChainFormat { get; }
             GpuRenderBundle RenderBundle { get; }
             GpuBuffer UniformBuffer { get; }
+            Windows.Storage.Streams.Buffer UniformTimeCpuBuffer { get; set; }
             UInt32 AlignedUniformBytes 
             { 
                 get 
@@ -220,11 +221,17 @@ namespace Animometer
                     for (var i = 0; i < Settings.NumTriangles; ++i)
                     {
                         uniformCpuWriter.Seek((int)(i * AlignedUniformBytes), SeekOrigin.Begin);
-                        uniformCpuWriter.Write((float)(rand.NextDouble() * 0.2 + 0.2)); //Scale
-                        uniformCpuWriter.Write((float)(0.9 * 2 * (rand.NextDouble() - 0.5))); //offsetX
-                        uniformCpuWriter.Write((float)(0.9 * 2 * (rand.NextDouble() - 0.5))); //offsetY
-                        uniformCpuWriter.Write((float)(rand.NextDouble() * 1.5 + 0.5)); //scalar
-                        uniformCpuWriter.Write((float)(rand.NextDouble() * 10)); //scalar offset
+                        float scale = (float)(rand.NextDouble() * 0.2 + 0.2);
+                        //scale = 5;
+                        float offsetX = (float)(0.9 * 2 * (rand.NextDouble() - 0.5));
+                        float offsetY = (float)(0.9 * 2 * (rand.NextDouble() - 0.5));
+                        float scalar = (float)(rand.NextDouble() * 1.5 + 0.5);
+                        float scalarOffset = (float)(rand.NextDouble() * 10);
+                        uniformCpuWriter.Write(scale); //Scale
+                        uniformCpuWriter.Write(offsetX); //offsetX
+                        uniformCpuWriter.Write(offsetY); //offsetY
+                        uniformCpuWriter.Write(scalar); //scalar
+                        uniformCpuWriter.Write(scalarOffset); //scalar offset
                     }
                 }
                 BindGroups = new GpuBindGroup[Settings.NumTriangles];
@@ -251,10 +258,14 @@ namespace Animometer
                         Offset = TimeOffset
                     })
                 }));
-                Device.DefaultQueue.WriteBuffer(UniformBuffer, 0, uniformCpuBuffer, uniformCpuBuffer.Length);
+                Device.DefaultQueue.WriteBuffer(UniformBuffer, 0, uniformCpuBuffer);
                 var renderBundleEncoder = Device.CreateRenderBundleEncoder(new GpuRenderBundleEncoderDescriptor(new GpuTextureFormat[] { SwapChainFormat }));
                 RecordRenderPass(renderBundleEncoder);
                 RenderBundle = renderBundleEncoder.Finish();
+                UniformTimeCpuBuffer = new Windows.Storage.Streams.Buffer(sizeof(float))
+                {
+                    Length = sizeof(float)
+                };
             }
             void RecordRenderPass(GpuRenderEncoderBase passEncoder)
             {
@@ -285,13 +296,14 @@ namespace Animometer
             }
             public void DoDraw(DateTime dateTime, GpuSwapChain swapChain)
             {
-                var uniformTimeCpuBuffer = new Windows.Storage.Streams.Buffer(sizeof(float));
-                using(var uniformTimeCpuBufferStream = uniformTimeCpuBuffer.AsStream())
+                
+                using(var uniformTimeCpuBufferStream = UniformTimeCpuBuffer.AsStream())
                 using(var uniformTimeCpuBufferWriter = new BinaryWriter(uniformTimeCpuBufferStream))
                 {
-                    uniformTimeCpuBufferWriter.Write(((float)(dateTime - StartDateTime).TotalMilliseconds) / 1000);
+                    float frametime = ((float)(dateTime - StartDateTime).TotalMilliseconds) / 1000;
+                    uniformTimeCpuBufferWriter.Write(frametime);
                 }
-                Device.DefaultQueue.WriteBuffer(UniformBuffer, TimeOffset, uniformTimeCpuBuffer);
+                Device.DefaultQueue.WriteBuffer(UniformBuffer, TimeOffset, UniformTimeCpuBuffer);
                 var renderPassDesriptor = new GpuRenderPassDescriptor(new GpuRenderPassColorAttachment[]
                 {
                    new GpuRenderPassColorAttachment(swapChain.GetCurrentTexture().CreateView(), new GpuColorDict{ R = 0, B = 0, G = 0, A = 1.0f})
@@ -320,20 +332,38 @@ namespace Animometer
             UInt64 currentFenceValue = 0;
             Settings settings = new Settings
             {
-                DynmicOffsets = false,
-                NumTriangles = 10,
-                RenderBundles = false
+                DynmicOffsets = true,
+                NumTriangles = 200000,
+                RenderBundles = true
             };
             Configure configure = new Configure(Device, settings, BindGroupLayout, DynamicBindGroupLayout, TimeBindGroupLayout, Pipeline, DynamicPipeline, VertexBuffer, SwapChainFormat);
+            DateTime? previousFrameDateTime = null;
+            double frameTimeAverage = 0;
+            double doDrawTimeAverage = 0;
             while (true)
             {
                 if (SwapChain == null)
                 {
                     SwapChainDescriptor = new GpuSwapChainDescriptor(SwapChainFormat, (uint)GpuView.Width, (uint)GpuView.Height);
                     SwapChain = Device.ConfigureSwapChainForSwapChainPanel(SwapChainDescriptor, GpuView);
+                    previousFrameDateTime = null;
                 }
+                var now = DateTime.Now;
+                TimeSpan frameTime = TimeSpan.FromMilliseconds(0);
+                if(previousFrameDateTime != null)
+                {
+                    frameTime = now - previousFrameDateTime.Value;
+                }
+                previousFrameDateTime = now;
+                var start = DateTime.Now;
+                configure.DoDraw(now, SwapChain);
+                var doDrawTimeSpan = DateTime.Now - start;
+                var w = 0.2;
+                frameTimeAverage = (1 - w) * frameTimeAverage + w * frameTime.TotalMilliseconds;
+                doDrawTimeAverage = (1 - w) * doDrawTimeAverage + w * doDrawTimeSpan.TotalMilliseconds;
 
-                configure.DoDraw(DateTime.Now, SwapChain);
+                System.Diagnostics.Debug.WriteLine($"FrameTime:{frameTimeAverage} CpuTime:{doDrawTimeAverage}");
+
                 SwapChain.Present();
                 var fenceValueWaitFor = ++currentFenceValue;
                 Device.DefaultQueue.Signal(fence, fenceValueWaitFor);
