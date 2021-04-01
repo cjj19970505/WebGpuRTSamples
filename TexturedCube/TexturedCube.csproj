@@ -156,7 +156,7 @@
       <Version>6.2.12</Version>
     </PackageReference>
     <PackageReference Include="WebGpuRT">
-      <Version>0.0.33</Version>
+      <Version>0.0.34</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
