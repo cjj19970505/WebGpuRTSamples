@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProjectGuid>{803334CF-8FCD-4D5D-8009-199CCD7D1CC9}</ProjectGuid>
+    <ProjectGuid>{18D3E2E4-001D-42A9-AC58-7532B2F8A6C4}</ProjectGuid>
     <OutputType>AppContainerExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TexturedCube</RootNamespace>
-    <AssemblyName>TexturedCube</AssemblyName>
+    <RootNamespace>ImageBlur</RootNamespace>
+    <AssemblyName>ImageBlur</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.19041.0</TargetPlatformVersion>
@@ -131,6 +131,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Di_3d.png" />
+    <EmbeddedResource Include="compute.hlsl" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\SplashScreen.scale-200.png" />
@@ -139,7 +140,6 @@
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Content Include="Assets\StoreLogo.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
-    <EmbeddedResource Include="shader.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -153,20 +153,11 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
-      <Version>6.2.12</Version>
+      <Version>6.2.11</Version>
     </PackageReference>
     <PackageReference Include="WebGpuRT">
       <Version>0.0.36</Version>
     </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <WCFMetadata Include="Connected Services\" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Meshes\Meshes.csproj">
-      <Project>{ce6ac7b1-aa5a-4661-ac0b-dfc470bc1aa3}</Project>
-      <Name>Meshes</Name>
-    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>

@@ -79,7 +79,9 @@ namespace TwoCubes
         async Task Init()
         {
             var gpu = new Gpu();
+#if DEBUG
             gpu.EnableD3D12DebugLayer();
+#endif
             Device = await (await gpu.RequestAdapterAsync()).RequestDeviceAsync();
 
             Windows.Storage.Streams.Buffer verticeCpuBuffer = new Windows.Storage.Streams.Buffer((uint)Buffer.ByteLength(Cube.CubeVertexArray));
