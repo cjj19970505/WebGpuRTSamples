@@ -212,7 +212,7 @@ namespace TwoCubes
             passEncoder.SetVertexBuffer(0, VerticesBuffer, 0, VerticesBuffer.Size);
             passEncoder.SetBindGroup(0, UniformBindGroup1);
             passEncoder.Draw(36, 1, 0, 0);
-            passEncoder.SetBindGroup(1, UniformBindGroup2);
+            passEncoder.SetBindGroup(0, UniformBindGroup2);
             passEncoder.Draw(36, 1, 0, 0);
             passEncoder.EndPass();
             Device.DefaultQueue.Sumit(new GpuCommandBuffer[] { commandEncoder.Finish() });

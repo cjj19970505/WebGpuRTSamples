@@ -45,7 +45,8 @@ void main( uint3 DTid : SV_DispatchThreadID, uint3 Gid: SV_GroupID, uint3 GTid: 
 			{
 				loadIndex = loadIndex.yx;
 			}
-			tile[r][BATCH_0 * GTid.x + c] = inputTex.Sample(samp, (float2(loadIndex)+float2(0.25, 0)) / float2(dims)).rgb;
+			float4 sampled = inputTex.SampleLevel(samp, (float2(loadIndex)+float2(0.25, 0)) / float2(dims), 0);
+			tile[r][BATCH_0 * GTid.x + c] = sampled.rgb;
 		}
 	}
 	GroupMemoryBarrierWithGroupSync();
@@ -54,13 +55,22 @@ void main( uint3 DTid : SV_DispatchThreadID, uint3 Gid: SV_GroupID, uint3 GTid: 
 	{
 		for (uint c = 0; c < BATCH_0; ++c)
 		{
-			int2 writeIndex = baseIndex = int2(c, r);
+			int2 writeIndex = baseIndex + int2(c, r);
 			if (uFlip != 0)
 			{
 				writeIndex = writeIndex.yx;
 			}
 			uint center = BATCH_0 * GTid.x + c;
-			if(center >= filterOffset && center < TILE_DIM - filterOffset && )
+			if (center >= filterOffset && center < TILE_DIM - filterOffset && all(writeIndex < dims))
+			{
+				float3 acc = float3(0, 0, 0);
+				for (uint f = 0; f < uFilterDim; ++f)
+				{
+					uint i = center + f - filterOffset;
+					acc += (1.0 / float(uFilterDim)) * tile[r][i];
+				}
+				outputTex[uint2(writeIndex)] = float4(acc, 1.0);
+			}
 
 		}
 	}
