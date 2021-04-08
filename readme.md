@@ -11,13 +11,13 @@ Visual Studio 2019 (Version 16.9.2) with following components installed
 Open WebGpuRTSamples.sln with Visual Studio, then build and run the sample projects.
 
 # Samples
-- [HelloTriaingle](./HelloTraingle/readme.md)
-- [HelloTraingleMsaa](./HelloTraingleMsaa/readme.md)
-- [RotatingCube](./RotatingCube/readme.md)
-- [TwoCubes](./TwoCubes/readme.md)
-- [TexturedCube](./TexturedCube/readme.md)
-- [InstancedCube](./InstancedCube/readme.md)
-- [FractalCube](./FractalCube/readme.md)
-- [ComputeBoids](./ComputeBoids/readme.md)
-- [Animometer](./Animometer/readme.md)
-- [ImageBlur](./ImageBlur/readme.md)
+- [HelloTriaingle](./HelloTriangle/)
+- [HelloTriaingleMsaa](./HelloTriangleMsaa/)
+- [RotatingCube](./RotatingCube/)
+- [TwoCubes](./TwoCubes/)
+- [TexturedCube](./TexturedCube/)
+- [InstancedCube](./InstancedCube/)
+- [FractalCube](./FractalCube/)
+- [ComputeBoids](./ComputeBoids/)
+- [Animometer](./Animometer/)
+- [ImageBlur](./ImageBlur/)
