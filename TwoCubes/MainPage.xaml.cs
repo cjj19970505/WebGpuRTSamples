@@ -79,7 +79,9 @@ namespace TwoCubes
         async Task Init()
         {
             var gpu = new Gpu();
+#if DEBUG
             gpu.EnableD3D12DebugLayer();
+#endif
             Device = await (await gpu.RequestAdapterAsync()).RequestDeviceAsync();
 
             Windows.Storage.Streams.Buffer verticeCpuBuffer = new Windows.Storage.Streams.Buffer((uint)Buffer.ByteLength(Cube.CubeVertexArray));
@@ -210,7 +212,7 @@ namespace TwoCubes
             passEncoder.SetVertexBuffer(0, VerticesBuffer, 0, VerticesBuffer.Size);
             passEncoder.SetBindGroup(0, UniformBindGroup1);
             passEncoder.Draw(36, 1, 0, 0);
-            passEncoder.SetBindGroup(1, UniformBindGroup2);
+            passEncoder.SetBindGroup(0, UniformBindGroup2);
             passEncoder.Draw(36, 1, 0, 0);
             passEncoder.EndPass();
             Device.DefaultQueue.Sumit(new GpuCommandBuffer[] { commandEncoder.Finish() });
