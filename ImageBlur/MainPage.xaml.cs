@@ -15,6 +15,7 @@ using Windows.UI.Xaml.Navigation;
 using WebGpuRT;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
+using Windows.UI.ViewManagement;
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
 namespace ImageBlur
@@ -45,6 +46,8 @@ namespace ImageBlur
             Gpu.EnableD3D12DebugLayer();
 #endif
             this.InitializeComponent();
+            ApplicationView.PreferredLaunchViewSize = new Size(512, 512);
+            ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.PreferredLaunchViewSize;
             DataContext = ViewModel = new ViewModel();
         }
 

@@ -16,6 +16,7 @@ using Windows.UI.Xaml.Navigation;
 using WebGpuRT;
 using Meshes;
 using System.Numerics;
+using Windows.UI.ViewManagement;
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
 namespace FractalCube
@@ -42,6 +43,8 @@ namespace FractalCube
         public MainPage()
         {
             this.InitializeComponent();
+            ApplicationView.PreferredLaunchViewSize = new Size(512, 512);
+            ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.PreferredLaunchViewSize;
         }
 
         async Task Init()

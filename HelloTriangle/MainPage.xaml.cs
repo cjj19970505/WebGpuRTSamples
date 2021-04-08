@@ -14,6 +14,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using WebGpuRT;
 using System.Threading.Tasks;
+using Windows.UI.ViewManagement;
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
 namespace HelloTriangle
@@ -36,6 +37,8 @@ namespace HelloTriangle
             Gpu = new Gpu();
             Gpu.EnableD3D12DebugLayer();
             this.InitializeComponent();
+            ApplicationView.PreferredLaunchViewSize = new Size(512, 512);
+            ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.PreferredLaunchViewSize;
             GpuView.Width = Window.Current.Bounds.Width;
             GpuView.Height = Window.Current.Bounds.Height;
         }

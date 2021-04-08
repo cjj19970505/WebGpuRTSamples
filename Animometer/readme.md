@@ -1,0 +1,3 @@
+# Animometer
+
+![Snapshot](./snapshot.png)
