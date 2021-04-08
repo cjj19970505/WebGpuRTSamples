@@ -18,5 +18,5 @@ Texture2D myTexture : register(t1, space0);
 
 float4 PSMain(VertexOut pin) : SV_Target
 {
-	return myTexture.Sample(mySampler, pin.uv);
+	return myTexture.Sample(mySampler, pin.uv).rgba;
 }

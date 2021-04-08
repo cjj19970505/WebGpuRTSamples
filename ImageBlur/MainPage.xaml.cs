@@ -36,7 +36,7 @@ namespace ImageBlur
         GpuDevice Device { get; set; }
         GpuSwapChainDescriptor SwapChainDescriptor { get; set; }
         GpuSwapChain SwapChain { set; get; }
-
+        ViewModel ViewModel { get; set; }
 
         public MainPage()
         {
@@ -45,6 +45,7 @@ namespace ImageBlur
             Gpu.EnableD3D12DebugLayer();
 #endif
             this.InitializeComponent();
+            DataContext = ViewModel = new ViewModel();
         }
 
         Windows.Storage.Streams.IBuffer CreateBufferFromArray<T>(T[] data)
@@ -70,6 +71,7 @@ namespace ImageBlur
         GpuBuffer VerticesBuffer { get; set; }
         uint SrcWidth { get; set; }
         uint SrcHeight { get; set; }
+        GpuBuffer BlurParamsBuffer { get; set; }
         async Task Init()
         {
             var adapter = await Gpu.RequestAdapterAsync();
@@ -260,11 +262,11 @@ namespace ImageBlur
             }
             buffer1.Unmap();
 
-            var blurParamsBuffer = Device.CreateBuffer(new GpuBufferDescriptor(8, GpuBufferUsageFlags.CopyDst | GpuBufferUsageFlags.Uniform));
+            BlurParamsBuffer = Device.CreateBuffer(new GpuBufferDescriptor(8, GpuBufferUsageFlags.CopyDst | GpuBufferUsageFlags.Uniform));
             ComputeConstants = Device.CreateBindGroup(new GpuBindGroupDescriptor(blurBindGroupLayouts[0], new GpuBindGroupEntry[]
             {
                 new GpuBindGroupEntry(0, sampler),
-                new GpuBindGroupEntry(1, new GpuBufferBinding(blurParamsBuffer, blurParamsBuffer.Size))
+                new GpuBindGroupEntry(1, new GpuBufferBinding(BlurParamsBuffer, BlurParamsBuffer.Size))
             }));
             ComputeBindGroup0 = Device.CreateBindGroup(new GpuBindGroupDescriptor(blurBindGroupLayouts[1], new GpuBindGroupEntry[]
             {
@@ -291,19 +293,32 @@ namespace ImageBlur
             }));
             
         }
-
+        private Settings _LastSettings = new Settings();
         void DrawFrame(Settings settings)
         {
+            //Device.DefaultQueue.WriteBuffer()
             var blockDim = TileDim - (settings.FilterSize - 1);
+            if(_LastSettings.FilterSize == settings.FilterSize && _LastSettings.Iterations == settings.Iterations)
+            {
+
+            }
+            else
+            {
+                Device.DefaultQueue.WriteBuffer(BlurParamsBuffer, 0, CreateBufferFromArray(new UInt32[] { settings.FilterSize, blockDim }));
+                _LastSettings = settings;
+            }
+            
+
             var commandEncoder = Device.CreateCommandEncoder();
             var computePass = commandEncoder.BeginComputePass();
             computePass.SetPipeline(BlurPipeline);
             computePass.SetBindGroup(0, ComputeConstants);
             computePass.SetBindGroup(1, ComputeBindGroup0);
             computePass.Dispatch((uint)MathF.Ceiling(SrcWidth / ((float)blockDim)), (uint)MathF.Ceiling(SrcHeight / ((float)Batch[1])), 1);
+            computePass.Dispatch(2, (uint)MathF.Ceiling(SrcHeight / ((float)Batch[1])), 1);
             computePass.SetBindGroup(1, ComputeBindGroup1);
             computePass.Dispatch((uint)MathF.Ceiling(SrcHeight / ((float)blockDim)), (uint)MathF.Ceiling(SrcWidth / ((float)Batch[1])), 1);
-            for(int i = 0; i < settings.Iterations - 1; ++i)
+            for (int i = 0; i < settings.Iterations - 1; ++i)
             {
                 computePass.SetBindGroup(1, ComputeBindGroup2);
                 computePass.Dispatch((uint)MathF.Ceiling(SrcWidth / ((float)blockDim)), (uint)MathF.Ceiling(SrcHeight / ((float)Batch[1])), 1);
@@ -333,10 +348,10 @@ namespace ImageBlur
             {
                 if (SwapChain == null)
                 {
-                    SwapChainDescriptor = new GpuSwapChainDescriptor(GpuTextureFormat.BGRA8UNorm, (uint)GpuView.Width, (uint)GpuView.Height);
+                    SwapChainDescriptor = new GpuSwapChainDescriptor(SwapChainFormat, (uint)GpuView.Width, (uint)GpuView.Height);
                     SwapChain = Device.ConfigureSwapChainForSwapChainPanel(SwapChainDescriptor, GpuView);
                 }
-                Settings settings = new Settings { FilterSize = 15, Iterations = 2 };
+                Settings settings = new Settings { FilterSize = (uint)ViewModel.FilterSize, Iterations = (uint)ViewModel.Iterations };
                 DrawFrame(settings);
                 SwapChain.Present();
                 var fenceValueWaitFor = ++currentFenceValue;

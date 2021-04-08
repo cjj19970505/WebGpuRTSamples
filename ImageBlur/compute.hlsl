@@ -27,7 +27,7 @@ cbuffer uniforms : register(b3, space1)
 // Specifically, with ${tileDim} x ${tileDim} tiles, we can only compute and write out
 // square blocks of size ${tileDim} - (filterSize - 1). We compute the number of blocks
 // needed and dispatch that amount.
-groupshared float3 tile[TILE_DIM][BATCH_1];
+groupshared float3 tile[BATCH_1][TILE_DIM];
 [numthreads(TILE_DIM / BATCH_0, 1, 1)]
 void main( uint3 DTid : SV_DispatchThreadID, uint3 Gid: SV_GroupID, uint3 GTid: SV_GroupThreadID)
 {
@@ -45,7 +45,7 @@ void main( uint3 DTid : SV_DispatchThreadID, uint3 Gid: SV_GroupID, uint3 GTid: 
 			{
 				loadIndex = loadIndex.yx;
 			}
-			float4 sampled = inputTex.SampleLevel(samp, (float2(loadIndex)+float2(0.25, 0)) / float2(dims), 0);
+			float4 sampled = inputTex.SampleLevel(samp, (float2(loadIndex)+float2(0.25, 0.25)) / float2(dims), 0);
 			tile[r][BATCH_0 * GTid.x + c] = sampled.rgb;
 		}
 	}
@@ -70,6 +70,10 @@ void main( uint3 DTid : SV_DispatchThreadID, uint3 Gid: SV_GroupID, uint3 GTid: 
 					acc += (1.0 / float(uFilterDim)) * tile[r][i];
 				}
 				outputTex[uint2(writeIndex)] = float4(acc, 1.0);
+			}
+			else
+			{
+				//outputTex[uint2(writeIndex)] = float4(baseIndex / float2(512, 512), 0.0, 1.0);
 			}
 
 		}

@@ -9,8 +9,18 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     SizeChanged="Page_SizeChanged"
     Loaded="Page_Loaded">
-
+    <Page.Resources>
+        <local:StringFormatConverter x:Key="StringFormatConverter"/>
+    </Page.Resources>
     <Grid>
         <SwapChainPanel x:Name="GpuView"/>
+        <Grid VerticalAlignment="Top" HorizontalAlignment="Right" Margin="10" Padding="10" Background="{ThemeResource SystemControlAcrylicElementBrush}" CornerRadius="10">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Slider d:Header="FilterSize: 100" Header="{Binding Path=FilterSize, Converter={StaticResource ResourceKey=StringFormatConverter}, ConverterParameter='FilterSize: {0}'}" Grid.Row="0" Value="{Binding Path=FilterSize, Mode=TwoWay}" Minimum="1" Maximum="33" StepFrequency="2"/>
+            <Slider d:Header="Iterations: 100" Header="{Binding Path=Iterations, Converter={StaticResource ResourceKey=StringFormatConverter}, ConverterParameter='Iterations: {0}'}" Grid.Row="1" Value="{Binding Path=Iterations, Mode=TwoWay}" Minimum="1" Maximum="10"/>
+        </Grid>
     </Grid>
 </Page>
