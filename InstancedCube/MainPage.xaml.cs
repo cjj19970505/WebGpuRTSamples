@@ -16,6 +16,7 @@ using WebGpuRT;
 using System.Threading.Tasks;
 using Meshes;
 using System.Numerics;
+using Windows.UI.ViewManagement;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -47,6 +48,8 @@ namespace InstancedCube
         public MainPage()
         {
             this.InitializeComponent();
+            ApplicationView.PreferredLaunchViewSize = new Size(512, 512);
+            ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.PreferredLaunchViewSize;
             GpuView.Width = Window.Current.Bounds.Width;
             GpuView.Height = Window.Current.Bounds.Height;
         }
@@ -54,7 +57,9 @@ namespace InstancedCube
         async Task Init()
         {
             var gpu = new Gpu();
+#if DEBUG
             gpu.EnableD3D12DebugLayer();
+#endif
             Device = await (await gpu.RequestAdapterAsync()).RequestDeviceAsync();
             Windows.Storage.Streams.Buffer verticeCpuBuffer = new Windows.Storage.Streams.Buffer((uint)Buffer.ByteLength(Cube.CubeVertexArray));
             verticeCpuBuffer.Length = verticeCpuBuffer.Capacity;

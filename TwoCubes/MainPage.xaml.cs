@@ -16,6 +16,7 @@ using WebGpuRT;
 using Meshes;
 using System.Threading.Tasks;
 using System.Numerics;
+using Windows.UI.ViewManagement;
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
 namespace TwoCubes
@@ -45,6 +46,8 @@ namespace TwoCubes
         public MainPage()
         {
             this.InitializeComponent();
+            ApplicationView.PreferredLaunchViewSize = new Size(512, 512);
+            ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.PreferredLaunchViewSize;
             GpuView.Width = Window.Current.Bounds.Height;
             GpuView.Height = Window.Current.Bounds.Width;
         }
