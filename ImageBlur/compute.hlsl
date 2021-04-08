@@ -71,10 +71,6 @@ void main( uint3 DTid : SV_DispatchThreadID, uint3 Gid: SV_GroupID, uint3 GTid: 
 				}
 				outputTex[uint2(writeIndex)] = float4(acc, 1.0);
 			}
-			else
-			{
-				//outputTex[uint2(writeIndex)] = float4(baseIndex / float2(512, 512), 0.0, 1.0);
-			}
 
 		}
 	}

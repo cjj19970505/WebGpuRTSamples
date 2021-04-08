@@ -161,7 +161,7 @@ namespace TexturedCube
             
             var imgDecoder = await BitmapDecoder.CreateAsync(typeof(MainPage).Assembly.GetManifestResourceStream("TexturedCube.Di_3d.png").AsRandomAccessStream());
             var imageBitmap = await imgDecoder.GetSoftwareBitmapAsync();
-            var cubeTexture = Device.CreateTexture(new GpuTextureDescriptor(new GpuExtend3DDict { Width = (uint)imageBitmap.PixelWidth, Height = (uint)imageBitmap.PixelHeight, Depth = 1 }, GpuTextureFormat.RGBA8UNorm, GpuTextureUsageFlags.Sampled | GpuTextureUsageFlags.CopyDst));
+            var cubeTexture = Device.CreateTexture(new GpuTextureDescriptor(new GpuExtend3DDict { Width = (uint)imageBitmap.PixelWidth, Height = (uint)imageBitmap.PixelHeight, Depth = 1 }, GpuTextureFormat.BGRA8UNorm, GpuTextureUsageFlags.Sampled | GpuTextureUsageFlags.CopyDst));
             Device.DefaultQueue.CopyImageBitmapToTexture(new GpuImageCopyImageBitmap(imageBitmap), new GpuImageCopyTexture(cubeTexture), new GpuExtend3DDict { Width = (uint)imageBitmap.PixelWidth, Height = (uint)imageBitmap.PixelHeight, Depth = 1 });
             var sampler = Device.CreateSampler(new GpuSamplerDescriptor()
             {

@@ -239,7 +239,7 @@ namespace ImageBlur
             var imgDecoder = await BitmapDecoder.CreateAsync(typeof(MainPage).Assembly.GetManifestResourceStream("ImageBlur.Di_3d.png").AsRandomAccessStream());
             var imageBitmap = await imgDecoder.GetSoftwareBitmapAsync();
             (SrcWidth, SrcHeight) = ((uint)imageBitmap.PixelWidth, (uint)imageBitmap.PixelHeight);
-            var cubeTexture = Device.CreateTexture(new GpuTextureDescriptor(new GpuExtend3DDict { Width = (uint)imageBitmap.PixelWidth, Height = (uint)imageBitmap.PixelHeight, Depth = 1 }, GpuTextureFormat.RGBA8UNorm, GpuTextureUsageFlags.Sampled | GpuTextureUsageFlags.CopyDst));
+            var cubeTexture = Device.CreateTexture(new GpuTextureDescriptor(new GpuExtend3DDict { Width = (uint)imageBitmap.PixelWidth, Height = (uint)imageBitmap.PixelHeight, Depth = 1 }, GpuTextureFormat.BGRA8UNorm, GpuTextureUsageFlags.Sampled | GpuTextureUsageFlags.CopyDst));
             Device.DefaultQueue.CopyImageBitmapToTexture(new GpuImageCopyImageBitmap(imageBitmap), new GpuImageCopyTexture(cubeTexture), new GpuExtend3DDict { Width = (uint)imageBitmap.PixelWidth, Height = (uint)imageBitmap.PixelHeight, Depth = 1 });
             var textures = new GpuTexture[2]
             {
