@@ -1,3 +1,3 @@
 # ComputeBoids
 
-![Snapshot](./snapshot.png)
+![Snapshot](./snapshot.gif)

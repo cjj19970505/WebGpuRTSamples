@@ -1,3 +1,3 @@
 # FractalCube
 
-![Snapshot](./snapshot.png)
+![Snapshot](./snapshot.gif)

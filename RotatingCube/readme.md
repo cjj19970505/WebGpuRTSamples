@@ -1,3 +1,3 @@
 # RotatingCube
 
-![Snapshot](./snapshot.png)
+![Snapshot](./snapshot.gif)

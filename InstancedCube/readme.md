@@ -1,3 +1,3 @@
 # InstancedCube
 
-![Snapshot](./snapshot.png)
+![Snapshot](./snapshot.gif)
