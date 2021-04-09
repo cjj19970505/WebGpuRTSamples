@@ -35,7 +35,9 @@ namespace HelloTriangleMsaa
         public MainPage()
         {
             Gpu = new Gpu();
+#if DEBUG
             Gpu.EnableD3D12DebugLayer();
+#endif
             this.InitializeComponent();
             ApplicationView.PreferredLaunchViewSize = new Size(512, 512);
             ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.PreferredLaunchViewSize;
