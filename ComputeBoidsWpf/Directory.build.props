@@ -1,0 +1,5 @@
+﻿<Project>
+  <PropertyGroup>
+    <AssetTargetFallback>uap10.0.19041</AssetTargetFallback>
+  </PropertyGroup>
+</Project>
