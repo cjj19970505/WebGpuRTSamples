@@ -99,7 +99,7 @@ namespace TwoCubes
             {
                 MappedAtCreation = true
             });
-            verticeCpuBuffer.CopyTo(VerticesBuffer.MappedRange());
+            verticeCpuBuffer.CopyTo(VerticesBuffer.GetMappedRange());
             VerticesBuffer.Unmap();
 
             string shaderCode;

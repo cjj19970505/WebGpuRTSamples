@@ -174,7 +174,7 @@ namespace ComputeBoids
             {
                 MappedAtCreation = true
             });
-            using (var stream = VerticesBuffer.MappedRange().AsStream())
+            using (var stream = VerticesBuffer.GetMappedRange().AsStream())
             using (var binaryWriter = new BinaryWriter(stream))
             {
                 for (int i = 0; i < VertexBufferData.Length; ++i)
@@ -189,7 +189,7 @@ namespace ComputeBoids
                 MappedAtCreation = true
             });
 
-            using(var stream = simParamBuffer.MappedRange().AsStream())
+            using(var stream = simParamBuffer.GetMappedRange().AsStream())
             using(var writer = new BinaryWriter(stream))
             {
                 for(int i = 0; i < SimParamData.Length;++i)
@@ -226,7 +226,7 @@ namespace ComputeBoids
             for(int i = 0; i < 2; ++i)
             {
                 ParticleBuffers[i] = Device.CreateBuffer(new GpuBufferDescriptor(initialParticleDataBuffer.Length, GpuBufferUsageFlags.Vertex | GpuBufferUsageFlags.Storage) {MappedAtCreation = true });
-                initialParticleDataBuffer.CopyTo(ParticleBuffers[i].MappedRange());
+                initialParticleDataBuffer.CopyTo(ParticleBuffers[i].GetMappedRange());
                 ParticleBuffers[i].Unmap();
             }
             ParticleBindGroups = new GpuBindGroup[2];

@@ -89,7 +89,7 @@ namespace ImageBlur
                 -1.0f,  1.0f, 0.0f, 0.0f, 0.0f
             };
             VerticesBuffer = Device.CreateBuffer(new GpuBufferDescriptor((uint)Buffer.ByteLength(rectVerts), GpuBufferUsageFlags.Vertex) { MappedAtCreation = true });
-            CreateBufferFromArray(rectVerts).CopyTo(VerticesBuffer.MappedRange());
+            CreateBufferFromArray(rectVerts).CopyTo(VerticesBuffer.GetMappedRange());
             VerticesBuffer.Unmap();
 
             var blurBindGroupLayouts = new GpuBindGroupLayout[] { 
@@ -250,7 +250,7 @@ namespace ImageBlur
                 Device.CreateTexture(new GpuTextureDescriptor(new GpuExtend3DDict{Width = SrcWidth, Height = SrcHeight, Depth=1 }, GpuTextureFormat.RGBA8UNorm, GpuTextureUsageFlags.CopyDst | GpuTextureUsageFlags.Storage | GpuTextureUsageFlags.Sampled))
             };
             var buffer0 = Device.CreateBuffer(new GpuBufferDescriptor(4, GpuBufferUsageFlags.Uniform) { MappedAtCreation = true });
-            using(var stream = buffer0.MappedRange().AsStream())
+            using(var stream = buffer0.GetMappedRange().AsStream())
             using(var writer = new BinaryWriter(stream))
             {
                 writer.Write(0u);
@@ -258,7 +258,7 @@ namespace ImageBlur
             buffer0.Unmap();
 
             var buffer1 = Device.CreateBuffer(new GpuBufferDescriptor(4, GpuBufferUsageFlags.Uniform) { MappedAtCreation = true });
-            using (var stream = buffer1.MappedRange().AsStream())
+            using (var stream = buffer1.GetMappedRange().AsStream())
             using (var writer = new BinaryWriter(stream))
             {
                 writer.Write(1u);
