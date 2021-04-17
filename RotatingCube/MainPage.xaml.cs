@@ -65,7 +65,7 @@ namespace RotatingCube
             {
                 MappedAtCreation = true
             });
-            verticeCpuBuffer.CopyTo(VerticesBuffer.MappedRange());
+            verticeCpuBuffer.CopyTo(VerticesBuffer.GetMappedRange());
             VerticesBuffer.Unmap();
             string shaderCode;
             using (var shaderFileStream = typeof(MainPage).Assembly.GetManifestResourceStream("RotatingCube.shader.hlsl"))

@@ -189,7 +189,7 @@ namespace Animometer
                 Buffer.BlockCopy(vertexData, 0, vertexBufferBytes, 0, Buffer.ByteLength(vertexData));
                 await verticeCpuStream.WriteAsync(vertexBufferBytes, 0, Buffer.ByteLength(vertexData));
             }
-            verticeCpuBuffer.CopyTo(VertexBuffer.MappedRange());
+            verticeCpuBuffer.CopyTo(VertexBuffer.GetMappedRange());
             VertexBuffer.Unmap();
         }
 
